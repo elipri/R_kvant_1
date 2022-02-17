@@ -1,0 +1,89 @@
+---
+title: "Esimene kodutöö - andmelüngad"
+author: "Elina Prints"
+date: "20.02.2022"
+output:
+  html_document:
+    rmarkdown::html_document:
+      theme: lumen
+---
+
+```{r paketid, echo=FALSE, message=FALSE, warning=FALSE}
+library(haven)
+library(foreign)
+library(tidyverse)
+library(summarytools)
+library(naniar)
+library(finalfit)
+```
+
+# Andmelünkade uurimine
+Laen sisse Euroopa Sotsiaaluuringu Eesti 9. laine andmed (2018):
+
+```
+Tunnused B6-B12:
+trstprl    - Trust in country's parliament 
+trstlgl    - Trust in the legal system
+trstplc    - Trust in the police
+trstplt    - Trust in politicians
+trstprt    - Trust in political parties
+trstep     - Trust in the European Parliament
+trstun     - Trust in the United Nations
+
+Muud tunnused:
+gndr       - Gender
+agea       - Age
+brncntr    - Born in country
+rlgdgr     - How religious are you
+eduyrs     - Years of full-time education completed
+```
+
+```{r class.source="bg-info"}
+ee9 <- read_sav("ESS9EE.sav")
+andmed <- ee9 %>% 
+  select(trstprl,trstlgl,trstplc,trstplt,trstprt,trstep,trstun,gndr,agea,brncntr,rlgdgr,eduyrs)
+```
+
+**Kui palju on nende tunnuste peale täielikult mõõdetud indiviide? Kui suur on andmelünkadega indiviidide osakaal (st nende indiviidide osakaal, kellel on vähemalt ühes tunnuses andmelünk)? Millistes tunnustes on lünki rohkem, millistes vähem?**
+
+```{r results='hide', class.source="bg-info"}
+sum(complete.cases(andmed)) # Täielikult mõõdetud indiviidide arv
+sum(!complete.cases(andmed)) # Andmelünkadega indiviidide arv ehk indiviidide arv, kellel on vähemalt ühes tunnuses andmelünk
+miss_var_summary(andmed)
+miss_var_table(andmed)
+miss_case_table(andmed)
+```
+
+**Vastus:**
+Nende tunnuste peale täielikult mõõdetud indiviide on 1706. Andmelünkadega indiviidide arv ehk indiviidide arv, kellel on vähemalt ühes tunnuses andmelünk, on 198. Andmelünkadega indiviidide osakaal andmestikus on 10%. Nelja tunnuse puhul lüngad puuduvad (sugu, vanus, sünnimaa, haridustee pikkus). Kõige rohkem andmelünki on _trstun_ ja _trstep_ tunnuste puhul (usaldus ÜRO, EL-i vastu). _Trstun_ (usaldus ÜRO vastu) tunnuse puhul on 153 andmelünka, _trstep_ (usaldus EL-i vastu) tunnuse puhul on 131 andmelünka. Nelja tunnuse puhul jääb lünkade arv all ühe protsendi (_trstplt_ - poliitikute usaldamine, _trstprl_ - parlamendi usaldamine, _trstplc_ - politsei usaldamine, vastaja religioossus).
+
+# Visualiseerimine
+
+**Praktikumis kasutasime andmelünkade esinemise visualiseerimiseks funktsiooni vis_miss paketist naniar. Vaikeseadena kuvab see funktsioon andmelünkade esinemise nii, et y-teljel on indiviidid reastatud andmestikus esinemise järjekorras. Tehke antud funktsiooniga joonis, mis võimaldaks midagi paremini öelda selle kohta, kas lünklikkus on kuidagi seotud vanusega ja haridustee pikkusega.**
+
+```{r class.source="bg-info"}
+vis_miss(andmed) # Andmelünkade esinemine andmestikus andmeid tunnuste väärtuste järgi sortieerimata
+vis_miss(arrange(andmed,agea)) # Andmelünkande esinemine andmestikus sorteerides andmeid vanuse järgi
+vis_miss(arrange(andmed,eduyrs)) # Andmelünkande esinemine andmestikus sorteerides andmeid haridustee pikkuse järgi
+# Parema visuaali annaks minu arvates hoopis gg_miss_fct funktsiooni kasutamine:
+gg_miss_fct(andmed, fct=agea)
+gg_miss_fct(andmed, fct=eduyrs)
+```
+
+**Vastus:**
+Üldistades võib öelda, et andmelünki esineb rohkem vanemate ja lühema haridusteega vastajate puhul.
+
+**Praktikumis uurisime lünklikkuse mustreid funktsiooniga gg_miss_upset. Leidke seda funktsiooni kasutades, kui palju tõuseks iga üksiku tunnuse väljajätmisel täisvastustega indiviidide arv. Milliste tunnuste väljajätmisest oleks täisvastustega indiviidide arvu suurenemise mõttes kõige rohkem kasu?**
+
+```{r class.source="bg-info"}
+gg_miss_upset(andmed)
+```
+
+**Vastus:**
+...
+
+**Uurige kahe kõige suurema lünklikkusega tunnuse puhul, kas nende lünklikkus on seotud soo, vanuse, Eestis sündimise, usklikkuse või haridustee pikkusega või võiksid nendes kahes tunnuses esinevad lüngad olla täiesti juhuslikud (MCAR) . Uurige seda kõigepealt visuaalselt ja seejärel funktsiooniga missing_compare keskmiste, risttabelite ja statistiliste testide põhjal. Mida järeldate - kas andmelünkadega indiviidid võiks lihtsalt südamerahuga eemaldada? Kui seda teha, mida peaks edasises analüüsis (nt uurides seoseid nende tunnuste vahel) tulemuste tõlgendamisel arvesse võtma?**
+
+```{r class.source="bg-info"}
+
+```
